@@ -56,8 +56,11 @@ for iteration = 1:length(data)
         data(iteration).Other = summary_full(activity_id_end+1:links_start-1);
     end
         %     summary = summary_full;
-    summary = summary_full(1:links_start-1);
-    summary = summary(1:activity_id_start-1);
+        if isempty(links) == 0
+            summary = summary_full(1:links_start-1);
+        end
+        summary = summary_full(1:activity_id_start-1);
+        
 %     summary = summary_full(1:activity_id_start-1);
 %     summary = summary_full(1:regexp(summary_full,'Activity ID')-1);
     
@@ -95,7 +98,13 @@ for iteration = 1:length(data)
             summary = regexprep(summary,'T..:..Z',tmp_replace);
         end
         
-%         if regexp
+%         activity_id = regexp(summary_full,'Activity ID');
+%         nwline = regexp(summary_full,'\n');
+
+%         for ii = 1:length(activity_id)
+%             nwline = nwline(find(nwline > activity_id(ii)));
+%             nwline = nwline(1);
+%         end
         
         sum_colon = regexp(summary,':');
 %         sum_colon = sum_colon(1:end);
