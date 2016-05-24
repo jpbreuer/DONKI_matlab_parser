@@ -3,8 +3,8 @@ close all
 % addpath('./jsonlab-1.2/jsonlab');
 
 
-startDate = '2015-9-01'; % yyyy-MM-dd
-endDate = '2015-9-31'; % yyyy-MM-dd
+startDate = '2015-6-01'; % yyyy-MM-dd
+endDate = '2015-6-31'; % yyyy-MM-dd
 type = 'CME'; %all, FLR, SEP, CME, IPS, MPC, GST, RBE, report
 Donki = sprintf('http://kauai.ccmc.gsfc.nasa.gov/DONKI/WS/get/notifications?startDate=%s&endDate=%s&type=%s',startDate,endDate,type);
 
@@ -42,7 +42,12 @@ for iteration = 1:length(data)
     data(iteration).Links = links;
     data(iteration).Notes = notes_full;
     
-    if regexp(summary_full,'Activity ID') >0
+        %     summary = summary_full;
+        if isempty(links) == 0
+            summary = summary_full(1:links_start-1);
+        end
+        
+        if regexp(summary_full,'Activity ID') >0
 %         if regexp(summary_full,'Multiple') == 0
 %         activity_id = regexp(summary_full,'Activity ID');
 %         nwline = regexp(summary_full,'\n');
@@ -51,16 +56,12 @@ for iteration = 1:length(data)
 %             nwline = nwline(find(nwline > activity_id(ii)));
 %             nwline = nwline(1);
 %         end
-        [activity_id_start activity_id_end] = regexp(summary_full,'Activity ID: ...........................\n');
-        data(iteration).ActivityID = summary_full(activity_id_start:activity_id_end);
-        data(iteration).Other = summary_full(activity_id_end+1:links_start-1);
-    end
-        %     summary = summary_full;
-        if isempty(links) == 0
-            summary = summary_full(1:links_start-1);
-        end
-        summary = summary_full(1:activity_id_start-1);
+            [activity_id_start activity_id_end] = regexp(summary_full,'Activity ID: ...........................\n');
+            data(iteration).ActivityID = summary_full(activity_id_start:activity_id_end);
+            data(iteration).Other = summary_full(activity_id_end+1:links_start-1);
         
+            summary = summary_full(1:activity_id_start-1);
+        end
 %     summary = summary_full(1:activity_id_start-1);
 %     summary = summary_full(1:regexp(summary_full,'Activity ID')-1);
     
