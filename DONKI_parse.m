@@ -1,6 +1,6 @@
 function [data, jd2000, Estimatedspeed, Estimatedopeninghalfangle, lon, lat] = DONKI_parse(startDate,endDate,type)
-% startDate = '2014-11-01'; % yyyy-MM-dd
-% endDate = '2014-11-31'; % yyyy-MM-dd
+% startDate = '2015-05-15'; % yyyy-MM-dd
+% endDate = '2015-05-15'; % yyyy-MM-dd
 % type = 'CME'; %all, FLR, SEP, CME, IPS, MPC, GST, RBE, report
 
 Donki = sprintf('http://kauai.ccmc.gsfc.nasa.gov/DONKI/WS/get/notifications?startDate=%s&endDate=%s&type=%s',startDate,endDate,type);
@@ -111,6 +111,12 @@ for iteration = 1:length(data)
         if regexp(summary,'Update') >0
             summary = summary(newline(3):end);
             summary = regexprep(summary,'type):','type).');
+            sum_colon = regexp(summary,':');
+            sum_dot = regexp(summary,'\.');
+        end
+        if regexp(summary,'are:') >0
+            [are_st are_sp] = regexp(summary, 'are:');
+            summary(are_sp) = '.';%:end);
             sum_colon = regexp(summary,':');
 %             sum_colon = sum_colon(1:end-2)
             sum_dot = regexp(summary,'\.');
