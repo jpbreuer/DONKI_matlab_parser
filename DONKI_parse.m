@@ -13,6 +13,7 @@ datalength = length(data);
 
 tmp = cell(size(data));
 [data(:).Summary] = deal(tmp{:});
+[data(:).Events] = deal(tmp{:});
 [data(:).Update] = deal(tmp{:});
 [data(:).Several] = deal(tmp{:});
 [data(:).Beta] = deal(tmp{:});
@@ -39,12 +40,18 @@ for iteration = 1:length(data)
     data(iteration).Links = links;
     data(iteration).Notes = notes_full;
     
+    if strcmp(data(iteration).messageType,'Report') == 1
+        [event_start event_end] = regexp(Body,'##Events:');
+        events_full = Body(event_end+1:notes_start-1);
+        data(iteration).Events = events_full;
+    end
+    
         %     summary = summary_full;
-        if isempty(links) == 0
-            summary = summary_full(1:links_start-1);
-        end
+    if isempty(links) == 0
+        summary = summary_full(1:links_start-1);
+    end
         
-        if regexp(summary_full,'Activity ID') >0
+    if regexp(summary_full,'Activity ID') >0
 %         if regexp(summary_full,'Multiple') == 0
 %         activity_id = regexp(summary_full,'Activity ID');
 %         nwline = regexp(summary_full,'\n');
@@ -53,12 +60,12 @@ for iteration = 1:length(data)
 %             nwline = nwline(find(nwline > activity_id(ii)));
 %             nwline = nwline(1);
 %         end
-            [activity_id_start activity_id_end] = regexp(summary_full,'Activity ID: ...........................\n');
-            data(iteration).ActivityID = summary_full(activity_id_start:activity_id_end);
-            data(iteration).Other = summary_full(activity_id_end+1:links_start-1);
+        [activity_id_start activity_id_end] = regexp(summary_full,'Activity ID: ...........................\n');
+        data(iteration).ActivityID = summary_full(activity_id_start:activity_id_end);
+        data(iteration).Other = summary_full(activity_id_end+1:links_start-1);
         
-            summary = summary_full(1:activity_id_start-1);
-        end
+        summary = summary_full(1:activity_id_start-1);
+    end
 %     summary = summary_full(1:activity_id_start-1);
 %     summary = summary_full(1:regexp(summary_full,'Activity ID')-1);
     
