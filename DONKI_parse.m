@@ -1,11 +1,8 @@
-clear all
-close all
-% addpath('./jsonlab-1.2/jsonlab');
+function [data, jd2000, Estimatedspeed, Estimatedopeninghalfangle, lon, lat] = DONKI_parse(startDate,endDate,type)
+% startDate = '2014-11-01'; % yyyy-MM-dd
+% endDate = '2014-11-31'; % yyyy-MM-dd
+% type = 'CME'; %all, FLR, SEP, CME, IPS, MPC, GST, RBE, report
 
-
-startDate = '2015-6-01'; % yyyy-MM-dd
-endDate = '2015-6-31'; % yyyy-MM-dd
-type = 'CME'; %all, FLR, SEP, CME, IPS, MPC, GST, RBE, report
 Donki = sprintf('http://kauai.ccmc.gsfc.nasa.gov/DONKI/WS/get/notifications?startDate=%s&endDate=%s&type=%s',startDate,endDate,type);
 
 % json = loadjson(urlread(Donki));
@@ -147,6 +144,58 @@ for iteration = 1:length(data)
         end
     end
 end
+
+Starttimeoftheevent = []; year = []; month = []; day = []; hour = []; minute = [];
+if isfield(data, 'Starttimeoftheevent') == 1
+    Starttimeoftheevent = [Starttimeoftheevent; data.Starttimeoftheevent];
+    % Starttimeoftheevent = regexprep(Starttimeoftheevent,'[;]',':');
+    Starttimeoftheevent = regexprep(Starttimeoftheevent,'[-;TZ\.]','');
+    Starttimeoftheevent = regexp(Starttimeoftheevent,' ','split');
+
+% datetime_JP(Starttimeoftheevent)
+% Starttimeoftheevent = str2num(regexprep(Starttimeoftheevent,'[\.;TZ-]',''));%; Starttimeoftheevent = regexprep(Starttimeoftheevent,'[;]',':')
+
+    for ii = 1:length(Starttimeoftheevent)
+        if isempty(Starttimeoftheevent{ii}) == 1
+            continue
+        end
+        year = [year; Starttimeoftheevent{ii}(1:4)];
+        month = [month; Starttimeoftheevent{ii}(5:6)];
+        day = [day; Starttimeoftheevent{ii}(7:8)];
+        hour = [hour; Starttimeoftheevent{ii}(9:10)];
+        minute = [minute; Starttimeoftheevent{ii}(11:12)];
+    end
+    year = str2num(year); month = str2num(month); day = str2num(day); hour = str2num(hour); minute = str2num(minute)./60;
+    jd2000 = jd2000_new(year,month,day,hour+minute);
+end
+
+Estimatedspeed = [];
+if isfield(data, 'Estimatedspeed') == 1
+    Estimatedspeed = [Estimatedspeed; data.Estimatedspeed];
+    Estimatedspeed = str2num(regexprep(Estimatedspeed,'[~km/s\.]',''));
+end
+
+Estimatedopeninghalfangle = [];
+if isfield(data, 'Estimatedopeninghalfangle') == 1
+    Estimatedopeninghalfangle = [Estimatedopeninghalfangle; data.Estimatedopeninghalfangle];
+    Estimatedopeninghalfangle = str2num(regexprep(Estimatedopeninghalfangle,'[deg\.]',''));
+end
+
+lonlat = [];lon = []; lat = [];
+if isfield(data, 'Directionlonlat') == 1
+    lonlat = {data.Directionlonlat};%[lonlat; data.Directionlonlat];
+    for ii = 1:length(lonlat)
+        if isempty(lonlat{ii}) == 1
+            continue
+        end
+        lonlat{ii} = regexprep(lonlat{ii},'[^0-9]','');
+        lon = [lon; str2num(lonlat{ii}(1:2))];
+        lat = [lat; str2num(lonlat{ii}(3:4))];
+    end
+end
+
+
+% end
 %%
 % end
 
